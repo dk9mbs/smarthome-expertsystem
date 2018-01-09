@@ -1,0 +1,17 @@
+RuleEngine=de.dk9mbs.prohomelog.ruleengine.swiprolog.SwiRuleEngine
+
+BusPublisher_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusPublisher
+BusSubscriber_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusSubscriber
+BusParams_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusParams
+Persist_Class=de.dk9mbs.prohomelog.status.file.FilePersistStatus
+
+Prolog_Root_Path=/var/phl/logic/
+Log_Path=/var/phl/log/
+
+Broker=test.mosquitto.org
+Broker_uid=
+Broker_pwd=
+Broker_status_topic=prohomelog/dk9mbs/{session}/status/
+Broker_command_topic=prohomelog/dk9mbs/{session}/command/
+
+File_Persist_Path=/var/phl/status/

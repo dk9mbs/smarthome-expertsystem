@@ -1,0 +1,129 @@
+#!/bin/bash
+
+. $(dirname $0)/vars.sh
+
+echo "###########################################################"
+echo "# update system and install tools ...                     #"
+echo "###########################################################"
+apt-get update > /tmp/phl_aptget_update.log
+apt-get install -y coreutils curl swi-prolog swi-prolog-java gnuplot mosquitto-clients ant sendxmpp
+
+
+echo "###########################################################"
+echo "# create directories if not exists ...                    #"
+echo "###########################################################"
+mkdir -p /var/phl/status
+mkdir -p /var/phl/logic
+mkdir -p /var/phl/log
+mkdir -p /var/phl/node/hooks
+mkdir -p /etc/phl/vars.d
+
+chmod -R 0777 /var/phl/
+touch /var/phl/status/test.status
+chmod -R 0666 /var/phl/status/*
+chmod -R 0777 /etc/phl/
+
+echo "###########################################################"
+echo "# create config files if not exists ...                   #"
+echo "###########################################################"
+if [ ! -f ~/.prohomelog ]
+then
+
+cat >> ~/.prohomelog <<EOF
+RuleEngine=de.dk9mbs.prohomelog.ruleengine.swiprolog.SwiRuleEngine
+
+BusPublisher_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusPublisher
+BusSubscriber_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusSubscriber
+BusParams_Class=de.dk9mbs.prohomelog.eventbus.mqtt.MqttBusParams
+Persist_Class=de.dk9mbs.prohomelog.status.file.FilePersistStatus
+
+Prolog_Root_Path=/var/phl/logic/
+Log_Path=/var/phl/log/
+
+Broker=test.mosquitto.org
+Broker_uid=
+Broker_pwd=
+Broker_status_topic=prohomelog/dk9mbs/{session}/status/
+Broker_command_topic=prohomelog/dk9mbs/{session}/command/
+
+File_Persist_Path=/var/phl/status/
+EOF
+
+fi
+
+cat >> /etc/phl/vars.d/skelet.sh <<EOF
+#!/bin/bash
+EOF
+
+echo "###########################################################"
+echo "# install prolog knowlwdge base if not exists ...         #"
+echo "###########################################################"
+if [ ! -f /var/phl/logic/main.pl ] 
+then
+	cp $(dirname $0)/../../source/logic/main.pl /var/phl/logic/
+else
+	echo "Main.pl already exists!!"
+fi
+
+echo "###########################################################"
+echo "# checking so files ...                                   #"
+echo "###########################################################"
+if [ -L /usr/lib/libjsig.so ];
+then
+    echo "delete libjsig.so ..."
+    rm /usr/lib/libjsig.so
+fi
+
+if [ -L /usr/lib/libjpl.so ];
+then
+    echo "delete libjpl.so ..."
+    rm /usr/lib/libjpl.so
+fi
+
+if [ ! -f $PHL_INSTALL_LIBJSIG ]
+then
+    echo "$PHL_INSTALL_LIBJSIG nicht vorhanden!!!"
+    PHL_INSTALL_LIBJSIG=$(find / -name libjsig.so | head -n1)
+    echo "use: $PHL_INSTALL_LIBJSIG"
+fi
+
+if [ ! -f $PHL_INSTALL_LIBJPL ]
+then
+    echo "$PHL_INSTALL_LIBJPL not exists"
+    PHL_INSTALL_LIBJPL=$(find / -name libjpl.so | head -n1)
+    echo "use: $PHL_INSTALL_LIBJPL"
+fi
+
+echo "install $PHL_INSTALL_LIBJSIG in /usr/lib/"
+echo "install $PHL_INSTALL_LIBJPL in /usr/lib/"
+
+ln -s $PHL_INSTALL_LIBJSIG /usr/lib/
+ln -s $PHL_INSTALL_LIBJPL /usr/lib
+
+
+echo "###########################################################"
+echo "# find copylibtask for ant build tools ...                #"
+echo "###########################################################"
+if [ -L /usr/lib/org-netbeans-modules-java-j2seproject-copylibstask.jar ];
+then
+    echo "delete org-netbeans-modules-java-j2seproject-copylibstask.jar ..."
+    rm /usr/lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
+fi
+
+if [ ! -f $PHL_CPLIBTASK ]
+then
+    echo "PHL_CPLIBTASK not exists"
+    PHL_CPLIBTASK=$(find / -name org-netbeans-modules-java-j2seproject-copylibstask.jar | head -n1)
+    echo "use $PHL_CPLIBTASK in /usr/lib/"
+fi
+echo "install $PHL_CPLIBTASK in /usr/lib/"
+ln -s $PHL_CPLIBTASK /usr/lib
+
+echo "###########################################################"
+echo "#                                                          #"
+echo "# Please run build in this direktory to make               #"
+echo "# ProHomeLog                                               #"
+echo "#                                                          #"
+echo "###########################################################"
+
+

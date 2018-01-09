@@ -1,0 +1,6 @@
+#!/bin/bash
+
+. $(dirname $0)/vars.sh
+
+$PHL_INSTALL_ANT -f $(dirname $0)/../../source/_ProHomeLog -Dnb.internal.action.name=rebuild clean jar
+
