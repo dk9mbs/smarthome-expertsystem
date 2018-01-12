@@ -54,7 +54,7 @@ public class SwiRuleEngine extends AbstractEngine {
     public synchronized boolean setStatus(String status, String value) {
         //Den Status als wert betrachten und speichern
         this._setStatus(status, value);
-        String rule="msg_router("+status+","+value+",default,StatusOut,ValueOut,RoutingOut)";
+        String rule="busmsg("+status+","+value+",default,StatusOut,ValueOut,RoutingOut)";
         Hashtable result[] = Query.allSolutions(rule );
 
         String routingOut="default";

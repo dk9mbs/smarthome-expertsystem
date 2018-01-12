@@ -38,29 +38,29 @@ group(temp_bad_soll,temp_home_eg,status).
 Anwesenheitserkennung
 */
 
-msg_router(anwesend,yes,default,StatusOut,ValueOut,default) :-
+busmsg(anwesend,yes,default,StatusOut,ValueOut,default) :-
     status(heizung_nacht,off),getgroupstatus(X,home),StatusOut=X,ValueOut=22.
 
-msg_router(anwesend,no,default,StatusOut,ValueOut,default) :-
+busmsg(anwesend,no,default,StatusOut,ValueOut,default) :-
     getgroupstatus(X,home),StatusOut=X,ValueOut=20.
 
 /*
 Nachabsenkung in allen Raeumen.
 */
-msg_router(heizung_nacht,on,default,StatusOut,ValueOut,default) :-
+busmsg(heizung_nacht,on,default,StatusOut,ValueOut,default) :-
     getgroupstatus(X,home),StatusOut=X,ValueOut=19.
 
-msg_router(heizung_nacht,off,default,StatusOut,ValueOut,default) :-
+busmsg(heizung_nacht,off,default,StatusOut,ValueOut,default) :-
     status(anwesend,yes),getgroupstatus(X,home),StatusOut=X,ValueOut=22.
 
 
 /*
 Ueber die Aussentemperatur wird die Vorlauftemperatur der Heizungsanlage geregelt.
 */
-msg_router(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,RoutingOut) :-
+busmsg(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,RoutingOut) :-
     StatusIn=temp_aussen,status(temp_aussen,Temp),Temp>15.0,StatusOut=temp_vorlauf,ValueOut=0,RoutingOut=default,!.
 
-msg_router(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,RoutingOut) :-
+busmsg(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,RoutingOut) :-
     StatusIn=temp_aussen,status(temp_vorlauf_parallel,Parallel),status(temp_vorlauf_steigung,Steigung),status(temp_aussen,Aussen),
     Temp is Parallel+(Aussen*Steigung), StatusOut=temp_vorlauf,ValueOut=Temp,RoutingOut=default.
 
@@ -69,7 +69,7 @@ msg_router(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,RoutingOut) :-
 
 
 
-msg_router(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,default) :-
+busmsg(StatusIn,ValueIn,RoutingIn,StatusOut,ValueOut,default) :-
     StatusIn=temp_wohnzimmer,temp(StatusIn,[StatusOut,ValueOut]).
 
 /*
